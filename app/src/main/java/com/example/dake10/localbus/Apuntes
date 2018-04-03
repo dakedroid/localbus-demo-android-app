@@ -1,0 +1,147 @@
+package com.example.dake10.localbus;
+
+import android.content.Intent;
+import android.graphics.Color;
+import android.graphics.Interpolator;
+import android.os.SystemClock;
+import android.support.v4.app.FragmentActivity;
+import android.os.Bundle;
+import com.google.android.gms.maps.CameraUpdateFactory;
+import com.google.android.gms.maps.GoogleMap;
+import com.google.android.gms.maps.OnMapReadyCallback;
+import com.google.android.gms.maps.SupportMapFragment;
+import com.google.android.gms.maps.model.CameraPosition;
+import com.google.android.gms.maps.model.LatLng;
+import com.google.android.gms.maps.model.Marker;
+import com.google.android.gms.maps.model.MarkerOptions;
+import com.google.android.gms.maps.model.Polyline;
+import com.google.android.gms.maps.model.PolylineOptions;
+
+import android.os.Handler;
+import android.widget.Toast;
+
+
+
+public class MapsActivity extends FragmentActivity implements OnMapReadyCallback {
+
+    GoogleMap map;
+    SupportMapFragment mapFragment;
+    double longitud = (float)-96.1231898, latitud = (float)18.0880947;
+    LatLng tuxtepec = new LatLng(latitud, longitud);
+    Marker marker;
+    Handler mHandler = new Handler();
+    int init = 0;
+    int cont = 0;
+    Polyline lines[] = new Polyline[37];
+    LatLng latis [] = new LatLng[]{
+            new LatLng(18.085873, -96.134958),
+            new LatLng(18.085241, -96.132528),
+            new LatLng(18.084751, -96.130801),
+            new LatLng(18.083956, -96.128097),
+            new LatLng(18.082610, -96.123419),
+            new LatLng(18.082610, -96.123419),
+            new LatLng(18.081631, -96.119686),
+            new LatLng(18.082446, -96.119353),
+            new LatLng(18.082926, -96.121080),
+            new LatLng(18.084343, -96.125533),
+            new LatLng(18.085516, -96.129245),
+            new LatLng(18.086455, -96.132335),
+            new LatLng(18.086883, -96.133580),
+            new LatLng(18.087770, -96.132442),
+            new LatLng(18.088627, -96.131402),
+            new LatLng(18.090544, -96.129964),
+            new LatLng(18.092431, -96.132389),
+            new LatLng(18.096939, -96.137850),
+            new LatLng(18.097224, -96.139040),
+            new LatLng(18.096877, -96.141315),
+            new LatLng(18.096582, -96.143600),
+            new LatLng(18.096204, -96.143879),
+            new LatLng(18.094817, -96.143997),
+            new LatLng(18.092543, -96.144888),
+            new LatLng(18.091207, -96.145478),
+            new LatLng(18.088199, -96.146411),
+            new LatLng(18.087893, -96.144813),
+            new LatLng(18.087332, -96.142120),
+            new LatLng(18.087454, -96.141530),
+            new LatLng(18.087760, -96.140821),
+            new LatLng(18.088250, -96.140049),
+            new LatLng(18.088301, -96.139641),
+            new LatLng(18.088154, -96.139083),
+            new LatLng(18.087277, -96.138161),
+            new LatLng(18.086675, -96.137538),
+            new LatLng(18.086166, -96.136249),
+            new LatLng(18.085870, -96.134940),
+            new LatLng(18.085873, -96.134958),
+    };
+
+
+
+    public void polyCreate(LatLng[]latis){
+        for (int i = 0; i < latis.length - 1; i++){
+            lines[i] = map.addPolyline(new PolylineOptions()
+                    .add(latis[i], latis[i+1])
+                    .width(5)
+                    .color(Color.BLUE))
+            ;
+        }
+
+    }
+
+
+    @Override
+    protected void onCreate(Bundle savedInstanceState) {
+        super.onCreate(savedInstanceState);
+        setContentView(R.layout.activity_maps);
+        mapFragment = (SupportMapFragment) getSupportFragmentManager().findFragmentById(R.id.map);
+        mapFragment.getMapAsync(this);
+
+    }
+
+
+    @Override
+    public void onMapReady(final GoogleMap googleMap)
+    {
+
+        if (init == 0)
+        {
+            map = googleMap;
+            map.moveCamera(CameraUpdateFactory.newLatLngZoom(tuxtepec, (float) 13.5));
+            polyCreate(latis);
+        }
+
+
+        if (cont < 37){
+            mHandler.postDelayed(new Runnable() {
+                public void run() {
+                    tuxtepec = latis[cont];
+                    marker = map.addMarker(new MarkerOptions().position(tuxtepec).title("Marker: " + cont));
+                    if (cont >= 1){
+                        lines[cont - 1].setColor(Color.RED);
+                    }
+                    mHandler.postDelayed(new Runnable()
+                    {
+                        @Override
+                        public void run()
+                        {
+                            marker.remove();
+
+                            init = 1;
+                            cont++;
+                            //doStuff("Num: " + cont);
+                            onMapReady(googleMap);
+                        }
+                    }, 10);
+                }
+            }, 50);
+        }else {
+            doStuff("IT'S OVER");
+        }
+
+    }
+
+    private void doStuff(String mensaje) {
+        Toast.makeText(MapsActivity.this, mensaje, Toast.LENGTH_SHORT).show();
+    }
+
+
+}
